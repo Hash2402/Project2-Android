@@ -31,7 +31,7 @@ class VideoProcessor(
     private val filteredBallBoxes = mutableListOf<BoundingBox?>()
     private val filteredHoopBoxes = mutableListOf<BoundingBox?>()
 
-    private val _FRAMERATE = 30
+    private val _FRAMERATE = 3
 
     fun processVideoFrames(videoUri: Uri) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -96,6 +96,7 @@ class VideoProcessor(
         // Process the box sets and store them in the tracker
         trajectoryTracker.processBoxes(filteredBallBoxes, filteredHoopBoxes)
         // Calculate the final trajectory
+        println(trajectoryTracker.getBallTrajectory())
         trajectoryTracker.fitTrajectory()
     }
 
@@ -126,6 +127,8 @@ class VideoProcessor(
     }
 
 
+    // TODO: take the parabola and check if scored
+    // and calculate optimal path if needed
     private fun analyzeTrajectory() {
         val trajectory = trajectoryTracker.getTrajectory()
         val hoopPosition = trajectoryTracker.hoopPosition
@@ -136,9 +139,10 @@ class VideoProcessor(
         }
 
         // Use HoopDetector to check if the ball scored
-        hoopDetector.hoopPosition = hoopPosition
-        hoopDetector.checkIfScored(trajectory)
+//        hoopDetector.hoopPosition = hoopPosition
+//        hoopDetector.checkIfScored(trajectory)
 
+        // this should use the boxes
         val hasScored = hoopDetector.calculateHasScored(boxSets)
 
         if (hasScored) {

@@ -1,12 +1,14 @@
 package com.example.shotanalyse
 
 class TrajectoryTracker {
-    private val ballTrajectory = mutableListOf<Pair<Float, Float>?>() // List of ball positions
+    private val ballTrajectory = mutableListOf<Pair<Float, Float>>() // List of ball positions
     private val hoopPositions = mutableListOf<Pair<Float, Float>>() // List of hoop positions
     private val ballPositions = mutableListOf<Pair<Float, Float>?>()
 
     var hoopPosition: Pair<Float, Float>? = null
         private set
+
+    fun getBallTrajectory(): List<Pair<Float, Float>> = ballTrajectory
 
     /**
      * Tracks the ball and hoop positions from the model output.
@@ -41,7 +43,7 @@ class TrajectoryTracker {
      * Returns the full trajectory of the ball.
      * @return List of ball positions as (x, y) coordinates.
      */
-    fun getTrajectory(): List<Pair<Float, Float>> = ballTrajectory
+    fun getTrajectory(): List<Pair<Float, Float>> = ballTrajectory.toList()
 
     /**
      * Returns the most recent ball position.
@@ -182,14 +184,17 @@ class TrajectoryTracker {
             val hoopPosition = hoopPositions[i]
             val ballPosition = ballPositions[i]
             if (ballPosition != null) {
-                val x = hoopPosition.first - ballPosition.first
-                val y = hoopPosition.second - ballPosition.second
+//                val x = hoopPosition.first - ballPosition.first
+//                val y = hoopPosition.second - ballPosition.second
+                val x = ballPosition.first
+                val y = ballPosition.second
                 ballTrajectory.add(Pair(x, y))
             }
         }
     }
 
     // TODO: Take the points in ballTrajectory and fit a curve
+    // this should calculate the parabola
     fun fitTrajectory() {
 
     }

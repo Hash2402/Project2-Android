@@ -38,6 +38,8 @@ class PhysicsCalculator {
      * @param trajectory List of ball positions in the form of (x, y) coordinates.
      * @param hoopPosition Position of the hoop as (x, y) coordinates.
      */
+
+    // TODO: Implement with curve parameters
     fun calculateOptimalPath(trajectory: List<Pair<Float, Float>>, hoopPosition: Pair<Float, Float>?) {
         if (hoopPosition == null) return // Can't calculate without hoop position
 

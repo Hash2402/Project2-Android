@@ -17,6 +17,7 @@ fun extractBoundingBoxes(
     frameWidth: Int, // Frame width
     frameHeight: Int // Frame height
 ): List<BoundingBox> {
+    println("extracting bounding boxes")
     val boundingBoxes = mutableListOf<BoundingBox>()
 
     // Transpose the output[0] array (from [7, 8400] to [8400, 7])
