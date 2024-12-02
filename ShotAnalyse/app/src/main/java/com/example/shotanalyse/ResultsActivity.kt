@@ -2,6 +2,7 @@ package com.example.shotanalyse
 
 
 import android.os.Bundle
+import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
@@ -14,6 +15,10 @@ class ResultsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_results)
 
+        val backButton: ImageButton = findViewById(R.id.backButton)
+        backButton.setOnClickListener {
+            onBackPressed()
+        }
 
         // Retrieve data from Intent
         val resultMessage = intent.getStringExtra("RESULT_MESSAGE") ?: "No result"

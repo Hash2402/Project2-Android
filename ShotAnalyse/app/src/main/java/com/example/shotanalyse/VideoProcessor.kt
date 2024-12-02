@@ -301,12 +301,6 @@ class VideoProcessor(
     }
 
 
-
-
-
-
-
-
     private fun preprocessFrame(frame: Bitmap): ByteBuffer {
         val resizedFrame = Bitmap.createScaledBitmap(frame, 640, 640, true)
         return BitmapUtils.convertBitmapToByteBuffer(resizedFrame)
@@ -334,13 +328,8 @@ class VideoProcessor(
         hoopPosition?.let { trajectoryTracker.updateHoopPosition(it) }
     }
 
-
-
-
-    // TODO: take the parabola and check if scored
+    // take the parabola and check if scored
     // and calculate optimal path if needed
-
-
     private fun analyzeTrajectory() {
         val trajectory = trajectoryTracker.getTrajectory()
         val hoopPosition = trajectoryTracker.hoopPosition
@@ -395,7 +384,7 @@ class VideoProcessor(
             CoroutineScope(Dispatchers.Main).launch {
                 val intent = Intent(context, ResultsActivity::class.java).apply {
                     putExtra("RESULT_MESSAGE", if (hasScored) "Scored!" else "Missed")
-                    putExtra("OPTIMAL_ANGLE", optimalAngleResult)
+                    putExtra("OPTIMAL_ANGLE", if (hasScored) "---" else optimalAngleResult)
                     putExtra("LAUNCH_ANGLE", angleResult)
                     putExtra("OVERLAYED_BITMAP", BitmapUtils.bitmapToByteArray(overlayedBitmap))
                     putExtra("LAUNCH_VELOCITY", "$launchVelocity m/s")
