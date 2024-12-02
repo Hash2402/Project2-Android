@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@drawable/bg6">
+
+    <!-- Header FrameLayout with Title -->
+    <!-- Title FrameLayout with Logo and App Name -->
+    <FrameLayout
+        android:id="@+id/Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#AA000000"
+        android:padding="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
+
+        <LinearLayout
+            android:id="@+id/Title_Contents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|start"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/logoImageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:contentDescription="App Logo"
+                android:src="@drawable/bb_logo" />
+
+            <TextView
+                android:id="@+id/appNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Basketball Analyzer"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Title for Analysis and Suggestion Section -->
+    <TextView
+        android:id="@+id/analysisTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Analysis and Suggestion"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFEB3B"
+        app:layout_constraintTop_toBottomOf="@id/Title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Video Preview Placeholder -->
+    <ImageView
+        android:id="@+id/videoPreview"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        android:background="#E0E0E0"
+        android:contentDescription="Video Preview"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toBottomOf="@id/analysisTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Launch Velocity Card -->
+    <LinearLayout
+        android:id="@+id/launchVelocityCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#EDE7F6"
+        android:padding="16dp"
+        android:elevation="4dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="15dp"
+        app:layout_constraintTop_toBottomOf="@id/videoPreview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/launchVelocityLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Launch Velocity"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#0047AB" />
+
+        <TextView
+            android:id="@+id/launchVelocityValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="8 m/s"
+            android:textSize="16sp"
+            android:textColor="#0047AB"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- Launch Angle Card -->
+    <LinearLayout
+        android:id="@+id/launchAngleCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#BCBCBC"
+        android:padding="16dp"
+        android:layout_marginTop="10dp"
+        android:elevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/launchVelocityCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/launchAngleLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Launch Angle"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#8B0000" />
+
+        <TextView
+            android:id="@+id/launchAngleValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="40 degrees"
+            android:textSize="16sp"
+            android:textColor="#8B0000"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- Air Time Card -->
+    <LinearLayout
+        android:id="@+id/airTimeCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#EDE7F6"
+        android:padding="16dp"
+        android:elevation="4dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/launchAngleCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/airTimeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Air Time"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#0047AB" />
+
+        <TextView
+            android:id="@+id/airTimeValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1.75 s"
+            android:textSize="16sp"
+            android:textColor="#0047AB"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- Expected Launch Angle Card -->
+    <LinearLayout
+        android:id="@+id/expectedLaunchAngleCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginBottom="35dp"
+        android:background="#BCBCBC"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/airTimeCard"
+        app:layout_constraintVertical_bias="0.311">
+
+        <TextView
+            android:id="@+id/expectedLaunchAngleLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Expected Launch Angle"
+            android:textColor="#8B0000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/expectedLaunchAngleValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="44 degrees"
+            android:textColor="#8B0000"
+            android:textSize="16sp" />
+    </LinearLayout>
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_back"
+    android:contentDescription="Back"
+    app:layout_constraintTop_toBottomOf="@id/expectedLaunchAngleCard"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
