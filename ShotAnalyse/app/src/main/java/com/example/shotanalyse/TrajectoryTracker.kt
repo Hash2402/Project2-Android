@@ -6,6 +6,9 @@ class TrajectoryTracker {
     private var ballTrajectory = mutableListOf<Pair<Float, Float>>() // List of ball positions
     private val hoopPositions = mutableListOf<Pair<Float, Float>>() // List of hoop positions
     private val ballPositions = mutableListOf<Pair<Float, Float>?>()
+    private var startPosition = Pair(0f, 0f)
+
+    fun getStartPosition(): Pair<Float, Float> = startPosition
 
     var hoopPosition: Pair<Float, Float>? = null
         private set
@@ -91,12 +94,22 @@ class TrajectoryTracker {
         // Ensure there is at least one detection
         if (true || ballBoxes.filterNotNull().size == 0 || hoopBoxes.filterNotNull().size == 0) {
 //            throw java.lang.IllegalArgumentException("No detections found.")
+//            ballTrajectory = mutableListOf(
+//                Pair(100f, 200f),
+//                Pair(200f, 100f),
+//                Pair(300f, 150f)
+//            )
+//            ballPositions.add(Pair(50f, 300f))
+//            hoopPosition = Pair(400f, 170f)
             ballTrajectory = mutableListOf(
-                Pair(100f, 200f),
-                Pair(200f, 300f),
-                Pair(300f, 400f)
+                Pair(100f, 600f),
+                Pair(320f, 100f),
+                Pair(600f, 50f)
             )
-            ballPositions.add(Pair(100f, 200f))
+            ballPositions.add(Pair(100f, 600f))
+            hoopPosition=Pair(640f,50f)
+            hoopPosition = Pair(600f, 50f)
+            hoopPositions.add(Pair(600f, 55f))
             return
         }
 
@@ -206,6 +219,10 @@ class TrajectoryTracker {
                 ballTrajectory.add(Pair(x, y))
             }
         }
+        // Use first hoop position as start
+        hoopPosition = hoopPositions.first()
+        // Use first ball position as start as well
+        startPosition = ballTrajectory.first()
 
     }
 

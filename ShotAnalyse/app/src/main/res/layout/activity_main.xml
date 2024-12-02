@@ -87,17 +87,6 @@
             android:textColor="#000000"
             android:drawablePadding="0dp" />
 
-        <!-- Stop Recording Button -->
-        <Button
-            android:id="@+id/stopRecordingButton"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@drawable/ic_stop"
-            android:contentDescription="Stop Recording"
-            android:text="Stop"
-            android:textSize="14sp"
-            android:textColor="#FFFFFF"
-            android:drawablePadding="0dp" />
     </LinearLayout>
 
     <!-- Select Video Button -->

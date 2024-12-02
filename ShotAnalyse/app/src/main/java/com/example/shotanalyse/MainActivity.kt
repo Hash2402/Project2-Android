@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var selectVideoButton: Button
     private lateinit var startRecordingButton: Button
-    private lateinit var stopRecordingButton: Button
     private lateinit var uploadButton: Button
     private lateinit var imageView: ImageView
 
@@ -42,7 +41,6 @@ class MainActivity : AppCompatActivity() {
 
         selectVideoButton = findViewById(R.id.selectVideoButton)
         startRecordingButton = findViewById(R.id.startRecordingButton)
-        stopRecordingButton = findViewById(R.id.stopRecordingButton)
         uploadButton = findViewById(R.id.uploadButton)
         imageView = findViewById(R.id.videoPlaceholder)
 
@@ -54,10 +52,6 @@ class MainActivity : AppCompatActivity() {
 
         startRecordingButton.setOnClickListener {
             startRecording()
-        }
-
-        stopRecordingButton.setOnClickListener {
-            stopRecording()
         }
 
         uploadButton.setOnClickListener {
@@ -102,13 +96,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Recording saved: $videoUri", Toast.LENGTH_SHORT).show()
             setVideoThumbnail(videoUri)
             isRecording = false
-        }
-    }
-
-    private fun stopRecording() {
-        if (isRecording) {
-            isRecording = false
-            Toast.makeText(this, "Recording stopped.", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -58,52 +58,64 @@ class PhysicsCalculator {
         }
     }
 
+
+
     fun getOptimalPath(
         parameters: List<Float>,
         startPosition: Pair<Float, Float>,
         hoopPosition: Pair<Float, Float>
     ): List<Float>? {
-        if (parameters.size < 3) {
-            throw IllegalArgumentException("The parameters list must have at least 3 values (a, b, and c).")
-        }
-
+        // Extract the initial quadratic parameters
         val initialA = parameters[0]
         val initialB = parameters[1]
         val initialC = parameters[2]
 
-        val (x0, y0) = startPosition
-        val (xh, yh) = hoopPosition
+        // Calculate the initial velocity magnitude
+        val initialSpeed = sqrt(initialA * initialA + initialB * initialB)
 
-        // Initial velocity components
-        val initialVy = 2 * initialA * x0 + initialB
+        // Calculate the horizontal and vertical distance between start and hoop
+        val dx = hoopPosition.first - startPosition.first
+        val dy = hoopPosition.second - startPosition.second
 
-        // We need to solve for new `a` and `c` while keeping `b` constant
-        // System of equations:
-        // 1. y0 = a * x0^2 + b * x0 + c (start position constraint)
-        // 2. yh = a * xh^2 + b * xh + c (hoop position constraint)
+        // Try different launch angles to find a valid trajectory
+        val angleSearchRange = (-Math.PI/2).toInt() .. (Math.PI/2).toInt()
+        val angleStep = 1
 
-        // Constants for the linear system
-        val x0Squared = x0 * x0
-        val xhSquared = xh * xh
+        for (angle in angleSearchRange.step(angleStep)) {
+            // Decompose velocity into x and y components
+            val vx = (initialSpeed * cos(angle.toDouble())).toFloat()
+            val vy = (initialSpeed * sin(angle.toDouble())).toFloat()
 
-        // Formulate equations in terms of `a` and `c`
-        // Equation 1: c = y0 - a * x0^2 - b * x0
-        // Equation 2: yh = a * xh^2 + b * xh + c
-        // Substitute c from Equation 1 into Equation 2
+            // Calculate time to reach x-distance
+            val timeToReachX = dx / vx
 
-        val aNumerator = yh - y0 - initialB * (xh - x0)
-        val aDenominator = xhSquared - x0Squared
+            // Calculate parabola coefficients
+            // y = a*x^2 + b*x + c
+            val a = -initialA / (2 * vx * vx)
+            val b = vy / vx
+            val c = startPosition.second
 
-        if (aDenominator == 0.0f) {
-            // This happens if xh == x0, making it impossible to find a new parabola
-            return null
+            // Calculate expected y position at this time
+            val expectedY = a * dx * dx + b * dx + c
+
+            // Check if the expected y is close enough to the hoop's y position
+            if (abs(expectedY - hoopPosition.second) < 10f) {
+                // Return the found trajectory and parabola details
+                return listOf(
+                    vx,            // x-velocity
+                    vy,            // y-velocity
+                    initialA,      // original gravitational acceleration
+                    timeToReachX,  // time of flight
+                    a,             // new parabola a coefficient
+                    b,             // new parabola b coefficient
+                    c,             // new parabola c coefficient
+                    angle.toFloat()
+                )
+            }
         }
 
-        val newA = aNumerator / aDenominator
-        val newC = y0 - newA * x0Squared - initialB * x0
-
-        // Return new parameters
-        return listOf(newA, initialB, newC)
+        // No valid trajectory found
+        return null
     }
 
     fun getAnalysisOfPath(startPosition: Pair<Float, Float>, parameters: List<Float>): Float {
@@ -125,5 +137,16 @@ class PhysicsCalculator {
 
         // Convert the angle to degrees (optional)
         return toDegrees(angleRadians.toDouble()).toFloat()
+    }
+
+    fun getLaunchSpeed(parameters: List<Float>): Float {
+        if (parameters.size < 2) {
+            throw IllegalArgumentException("The parameters list must have at least 2 values (a and b).")
+        }
+        val initialA = parameters[0]
+        val initialB = parameters[1]
+
+        // Calculate the initial velocity magnitude
+        return sqrt(initialA * initialA + initialB * initialB)
     }
 }

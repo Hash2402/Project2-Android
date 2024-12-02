@@ -1,20 +1,30 @@
+
 package com.example.shotanalyse
 
+
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+
 object BitmapUtils {
+
+
     fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
         val inputSize = 640 // Image size for resizing
         val buffer = ByteBuffer.allocateDirect(4 * inputSize * inputSize * 3) // 3 channels (RGB)
         buffer.order(ByteOrder.nativeOrder()) // Ensure native byte order
 
+
         // Resize image to the input size expected by the model
         val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true)
         val intValues = IntArray(inputSize * inputSize)
 
+
         resizedBitmap.getPixels(intValues, 0, inputSize, 0, 0, inputSize, inputSize)
+
 
         // Normalize pixel values to [0, 1]
         for (pixel in intValues) {
@@ -23,6 +33,23 @@ object BitmapUtils {
             buffer.putFloat((pixel and 0xFF) / 255.0f)          // Blue channel
         }
 
+
         return buffer
     }
+
+
+    fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
+    }
+
+
+    fun byteArrayToBitmap(bytes: ByteArray?): Bitmap? {
+        return if (bytes != null) {
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        } else null
+    }
 }
+
+
