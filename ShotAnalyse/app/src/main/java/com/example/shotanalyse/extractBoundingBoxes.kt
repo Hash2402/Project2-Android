@@ -12,12 +12,11 @@ data class BoundingBox(
 
 fun extractBoundingBoxes(
     output: Array<Array<FloatArray>>, // Model output
-    confidenceThreshold: Float = 0.3f, // Confidence threshold
+    confidenceThreshold: Float = 0.05f, // Confidence threshold
     classNames: Array<String>, // Array of class names (e.g., ["Ball", "Hoop"])
     frameWidth: Int, // Frame width
     frameHeight: Int // Frame height
 ): List<BoundingBox> {
-    println("extracting bounding boxes")
     val boundingBoxes = mutableListOf<BoundingBox>()
 
     // Transpose the output[0] array (from [7, 8400] to [8400, 7])

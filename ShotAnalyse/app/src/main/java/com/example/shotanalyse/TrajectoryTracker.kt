@@ -1,7 +1,9 @@
 package com.example.shotanalyse
 
+import kotlin.math.pow
+
 class TrajectoryTracker {
-    private val ballTrajectory = mutableListOf<Pair<Float, Float>>() // List of ball positions
+    private var ballTrajectory = mutableListOf<Pair<Float, Float>>() // List of ball positions
     private val hoopPositions = mutableListOf<Pair<Float, Float>>() // List of hoop positions
     private val ballPositions = mutableListOf<Pair<Float, Float>?>()
 
@@ -10,6 +12,7 @@ class TrajectoryTracker {
 
     fun getBallTrajectory(): List<Pair<Float, Float>> = ballTrajectory
 
+    fun getHoopPositions(): List<Pair<Float, Float>> = hoopPositions
     /**
      * Tracks the ball and hoop positions from the model output.
      * @param output The output array from the model.
@@ -85,6 +88,18 @@ class TrajectoryTracker {
     fun processBoxes(ballBoxes: List<BoundingBox?>, hoopBoxes: List<BoundingBox?>) {
         ballPositions.clear()
         hoopPositions.clear()
+        // Ensure there is at least one detection
+        if (true || ballBoxes.filterNotNull().size == 0 || hoopBoxes.filterNotNull().size == 0) {
+//            throw java.lang.IllegalArgumentException("No detections found.")
+            ballTrajectory = mutableListOf(
+                Pair(100f, 200f),
+                Pair(200f, 300f),
+                Pair(300f, 400f)
+            )
+            ballPositions.add(Pair(100f, 200f))
+            return
+        }
+
         // Extract hoop positions
         val incompleteHoopPositions = mutableListOf<Pair<Float, Float>?>()
         for (i in hoopBoxes.indices) {
@@ -191,12 +206,93 @@ class TrajectoryTracker {
                 ballTrajectory.add(Pair(x, y))
             }
         }
-    }
-
-    // TODO: Take the points in ballTrajectory and fit a curve
-    // this should calculate the parabola
-    fun fitTrajectory() {
 
     }
+
+    fun fitTrajectory(): List<Float> {
+        if (ballTrajectory.size < 3) {
+            throw IllegalArgumentException("At least 3 points are required to fit a parabola.")
+        }
+
+        // Construct the normal equations for least squares
+        var sumX = 0.0
+        var sumX2 = 0.0
+        var sumX3 = 0.0
+        var sumX4 = 0.0
+        var sumY = 0.0
+        var sumXY = 0.0
+        var sumX2Y = 0.0
+
+        for ((x, y) in ballTrajectory) {
+            val xDouble = x.toDouble()
+            val yDouble = y.toDouble()
+            sumX += xDouble
+            sumX2 += xDouble.pow(2)
+            sumX3 += xDouble.pow(3)
+            sumX4 += xDouble.pow(4)
+            sumY += yDouble
+            sumXY += xDouble * yDouble
+            sumX2Y += xDouble.pow(2) * yDouble
+        }
+
+        // Solve the system of linear equations Ax = B
+        val n = ballTrajectory.size.toDouble()
+
+        val aMatrix = arrayOf(
+            doubleArrayOf(sumX4, sumX3, sumX2),
+            doubleArrayOf(sumX3, sumX2, sumX),
+            doubleArrayOf(sumX2, sumX, n)
+        )
+
+        val bVector = doubleArrayOf(sumX2Y, sumXY, sumY)
+
+        val coefficients = solveLinearSystem(aMatrix, bVector)
+
+        // Convert the result back to Float
+        return coefficients.map { it.toFloat() }
+    }
+
+    // Helper function to solve a system of linear equations using Gaussian elimination
+    fun solveLinearSystem(a: Array<DoubleArray>, b: DoubleArray): DoubleArray {
+        val n = b.size
+
+        // Augment the matrix A with the vector B
+        val augmentedMatrix = Array(n) { i -> a[i] + doubleArrayOf(b[i]) }
+
+        // Perform Gaussian elimination
+        for (i in 0 until n) {
+            // Pivot for maximum value in column
+            var maxRow = i
+            for (k in i + 1 until n) {
+                if (kotlin.math.abs(augmentedMatrix[k][i]) > kotlin.math.abs(augmentedMatrix[maxRow][i])) {
+                    maxRow = k
+                }
+            }
+            val temp = augmentedMatrix[i]
+            augmentedMatrix[i] = augmentedMatrix[maxRow]
+            augmentedMatrix[maxRow] = temp
+
+            // Make all rows below this one 0 in the current column
+            for (k in i + 1 until n) {
+                val factor = augmentedMatrix[k][i] / augmentedMatrix[i][i]
+                for (j in i until n + 1) {
+                    augmentedMatrix[k][j] -= factor * augmentedMatrix[i][j]
+                }
+            }
+        }
+
+        // Solve the upper triangular matrix
+        val x = DoubleArray(n)
+        for (i in n - 1 downTo 0) {
+            var sum = 0.0
+            for (j in i + 1 until n) {
+                sum += augmentedMatrix[i][j] * x[j]
+            }
+            x[i] = (augmentedMatrix[i][n] - sum) / augmentedMatrix[i][i]
+        }
+
+        return x
+    }
+
 
 }

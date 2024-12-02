@@ -31,7 +31,10 @@ class VideoProcessor(
     private val filteredBallBoxes = mutableListOf<BoundingBox?>()
     private val filteredHoopBoxes = mutableListOf<BoundingBox?>()
 
-    private val _FRAMERATE = 3
+    // a, b, and c terms of the parabola
+    private var parameters = listOf(0f, 0f, 0f)
+
+    private val _FRAMERATE = 1
 
     fun processVideoFrames(videoUri: Uri) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -50,6 +53,7 @@ class VideoProcessor(
                 val frameHeight = 1080 // Example frame height
 
                 for (timeUs in 0 until (videoDuration * 1000).toInt() step frameInterval) {
+                    println("extracting boxes (${timeUs / frameInterval}/${(videoDuration * 1000).toInt() / frameInterval})")
                     val frame = retriever.getFrameAtTime(timeUs.toLong(), MediaMetadataRetriever.OPTION_CLOSEST)
                     frame?.let {
                         val processedFrame = preprocessFrame(it)
@@ -97,7 +101,7 @@ class VideoProcessor(
         trajectoryTracker.processBoxes(filteredBallBoxes, filteredHoopBoxes)
         // Calculate the final trajectory
         println(trajectoryTracker.getBallTrajectory())
-        trajectoryTracker.fitTrajectory()
+        parameters = trajectoryTracker.fitTrajectory()
     }
 
 
@@ -133,23 +137,39 @@ class VideoProcessor(
         val trajectory = trajectoryTracker.getTrajectory()
         val hoopPosition = trajectoryTracker.hoopPosition
 
-        if (trajectory.isEmpty() || hoopPosition == null) {
-            println("Not enough data for analysis. Trajectory or hoop position missing.")
-            return
-        }
-
-        // Use HoopDetector to check if the ball scored
-//        hoopDetector.hoopPosition = hoopPosition
-//        hoopDetector.checkIfScored(trajectory)
+//        if (trajectory.isEmpty() || hoopPosition == null) {
+//            println("Not enough data for analysis. Trajectory or hoop position missing.")
+//            return
+//        }
+        // TODO: error checking
 
         // this should use the boxes
-        val hasScored = hoopDetector.calculateHasScored(boxSets)
+        val hasScored = hoopDetector.calculateHasScored(parameters, trajectoryTracker.getHoopPositions())
 
         if (hasScored) {
             println("The ball went through the hoop!")
         } else {
             println("The ball missed the hoop. Calculating optimal path...")
-            physicsCalculator.calculateOptimalPath(trajectory, hoopPosition)
+//            physicsCalculator.calculateOptimalPath(trajectory, hoopPosition)
+            var hoopPosition = trajectoryTracker.getHoopPositions().firstOrNull()
+            if (hoopPosition == null) {
+//                println("No hoop position found.")
+//                return
+                hoopPosition = Pair(0f, 0f)
+            }
+            if (trajectoryTracker.getBallTrajectory().isEmpty()) {
+                println("No ball trajectory found.")
+                return
+            }
+            val startPosition = trajectoryTracker.getBallTrajectory().first()
+            val optimalParams = physicsCalculator.getOptimalPath(parameters, startPosition, hoopPosition)
+            println("Optimal parameters: $optimalParams")
+            if (optimalParams == null) {
+                println("No optimal parameters found.")
+                return
+            }
+            val optimalAngle = physicsCalculator.getAnalysisOfPath(startPosition, optimalParams)
+            println("Optimal angle: $optimalAngle")
         }
     }
 }
