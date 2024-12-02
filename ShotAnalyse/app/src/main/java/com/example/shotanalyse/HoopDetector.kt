@@ -22,19 +22,19 @@ class HoopDetector {
         return scored
     }
 
+    // Use IoU to determine if the ball has scored
     fun calculateHasScored(boxSets: List<List<BoundingBox>>): Boolean {
         val ballBoxSets = boxSets.map { it.filter { it.classId == 0 } }
         val hoopBoxSets = boxSets.map { it.filter { it.classId == 1 } }
         // Consider only the highest confidence box for each set
-        // Some
         val filteredBallBoxSets = ballBoxSets.map { it.maxByOrNull { it.confidence } }
         val filteredHoopBoxSets = hoopBoxSets.map { it.maxByOrNull { it.confidence } }
-        // TODO: We can add additional logic here for more complex filtering
+        // TODO: We can add additional logic here for more complex filtering if we have time
 
-        // Check if any pair of ball and hoop boxes have a certain IoU threshold
+        // TODO: Check if any pair of ball and hoop boxes have a certain IoU threshold
 
 
-        return distanceToHoop <= 30
+        return true
     }
 }
 

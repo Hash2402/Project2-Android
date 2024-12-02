@@ -1,9 +1,9 @@
 package com.example.shotanalyse
 
 class TrajectoryTracker {
-    private val ballTrajectory = mutableListOf<Pair<Float, Float>>() // List of ball positions
+    private val ballTrajectory = mutableListOf<Pair<Float, Float>?>() // List of ball positions
     private val hoopPositions = mutableListOf<Pair<Float, Float>>() // List of hoop positions
-    private val ballPositions = mutableListOf<Pair<Float, Float>>()
+    private val ballPositions = mutableListOf<Pair<Float, Float>?>()
 
     var hoopPosition: Pair<Float, Float>? = null
         private set
@@ -79,61 +79,117 @@ class TrajectoryTracker {
     }
 
     // Transform the bounding boxes into positions and store them
-    // Also interpolates missing positions
     // Requires there to be at least one detection
-    //TODO: finish
     fun processBoxes(ballBoxes: List<BoundingBox?>, hoopBoxes: List<BoundingBox?>) {
         ballPositions.clear()
         hoopPositions.clear()
-        // Extract positions
-        val incompleteBallPositions = mutableListOf<Pair<Float, Float>?>()
+        // Extract hoop positions
         val incompleteHoopPositions = mutableListOf<Pair<Float, Float>?>()
-        for (i in ballBoxes.indices) {
-            val box = ballBoxes[i]
-            if (box != null) {
-                val x = box.x
-                val y = box.y
-                ballPositions.add(Pair(x, y))
-            } else {
-                incompleteBallPositions.add(null)
-            }
+        for (i in hoopBoxes.indices) {
             val hoop = hoopBoxes[i]
             if (hoop != null) {
                 val x = hoop.x
                 val y = hoop.y
-                hoopPositions.add(Pair(x, y))
+                incompleteHoopPositions.add(Pair(x, y))
             } else {
                 incompleteHoopPositions.add(null)
             }
         }
-        // Backfill missing positions
-        if (incompleteBallPositions[0] == null) {
-            var firstBallPosition: Pair<Float, Float>? = null
-            var firstHoopPosition: Pair<Float, Float>? = null
-            for (position in incompleteHoopPositions) {
-                if (position != null) {
-                    val x = position.first
-                    val y = position.second
-                    ballPositions.add(Pair(x, y))
+
+        // Find first non-null hoop position
+        var firstHoopPosition: Pair<Float, Float>? = null
+        for (i in hoopPositions.indices) {
+            if (incompleteHoopPositions[i] != null) {
+                firstHoopPosition = incompleteHoopPositions[i]
+                break
+            }
+        }
+        // Backfill missing positions for hoop
+        for (i in incompleteHoopPositions.indices) {
+            if (incompleteHoopPositions[i] == null) {
+                incompleteHoopPositions[i] = firstHoopPosition
+            } else {
+                break
+            }
+        }
+        // Identify the last non-null position
+        var lastHoopPosition: Pair<Float, Float>? = null
+        var lastHoopIndex = 0
+        for (i in incompleteHoopPositions.indices) {
+            if (incompleteHoopPositions[i] != null) {
+                lastHoopPosition = incompleteHoopPositions[i]
+                lastHoopIndex = incompleteHoopPositions.indexOf(incompleteHoopPositions[i])
+                break
+            }
+        }
+        // Forward fill missing positions at the end
+        for (i in hoopBoxes.size - 1 downTo lastHoopIndex) {
+            incompleteHoopPositions[i] = lastHoopPosition
+        }
+        // Interpolate missing positions and add to hoopPositions
+        // We know the first and last are non-null due to the filling
+        for (i in incompleteHoopPositions.indices) {
+            if (incompleteHoopPositions[i] == null) {
+                // Find the most recent and next non-null position
+                var interpolationFirst = 0
+                var interpolationLast = ballBoxes.size - 1
+                for (j in i downTo 0) {
+                    if (incompleteHoopPositions[j] != null) {
+                        interpolationFirst = j
+                        break
+                    }
                 }
+                for (j in i until ballBoxes.size) {
+                    if (incompleteHoopPositions[j] != null) {
+                        interpolationLast = j
+                        break
+                    }
+                }
+                // Interpolate
+                val interpolationFirstPosition = incompleteHoopPositions[interpolationFirst]!!
+                val interpolationLastPosition = incompleteHoopPositions[interpolationLast]!!
+
+                val interpolationSteps = interpolationLast - interpolationFirst
+                val interpolationDiffX = interpolationLastPosition.first - interpolationFirstPosition.first
+                val interpolationDiffY = interpolationLastPosition.second - interpolationFirstPosition.second
+
+                val interpolationStepX = interpolationDiffX / interpolationSteps
+                val interpolationStepY = interpolationDiffY / interpolationSteps
+
+                val numSteps = i - interpolationFirst
+
+                val interpolationX = interpolationFirstPosition.first + (numSteps * interpolationStepX)
+                val interpolationY = interpolationFirstPosition.second + (numSteps * interpolationStepY)
+                val interpolation = Pair(interpolationX, interpolationY)
+                hoopPositions.add(interpolation)
+            } else {
+                hoopPositions.add(incompleteHoopPositions[i]!!)
             }
         }
-        ballBoxes.forEach { box ->
-            box?.let {
-                val x = it.x
-                val y = it.y
+        for (i in ballBoxes.indices) {
+            val ball = ballBoxes[i]
+            if (ball != null) {
+                val x = ball.x
+                val y = ball.y
                 ballPositions.add(Pair(x, y))
+            } else {
+                ballPositions.add(null)
             }
         }
-        hoopBoxes.forEach { box ->
-            box?.let {
-                val x = it.x
-                val y = it.y
-                hoopPositions.add(Pair(x, y))
+        // Now we have a full list of hoop positions
+        // Fill the trajectory
+        for (i in hoopPositions.indices) {
+            val hoopPosition = hoopPositions[i]
+            val ballPosition = ballPositions[i]
+            if (ballPosition != null) {
+                val x = hoopPosition.first - ballPosition.first
+                val y = hoopPosition.second - ballPosition.second
+                ballTrajectory.add(Pair(x, y))
             }
         }
     }
 
+    // TODO: Take the points in ballTrajectory and fit a curve
     fun fitTrajectory() {
 
     }
