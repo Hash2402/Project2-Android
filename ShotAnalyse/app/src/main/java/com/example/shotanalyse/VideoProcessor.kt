@@ -64,7 +64,7 @@ class VideoProcessor(
 
                 for (timeUs in 0 until (videoDuration * 1000).toInt() step frameInterval) {
 
-                    println("extracting boxes (${timeUs / frameInterval}/${(videoDuration * 1000).toInt() / frameInterval})")
+//                    println("extracting boxes (${timeUs / frameInterval}/${(videoDuration * 1000).toInt() / frameInterval})")
                     val frame = retriever.getFrameAtTime(timeUs.toLong(), MediaMetadataRetriever.OPTION_CLOSEST)
                     if (timeUs == 0) {
                         firstFrame = frame
@@ -101,7 +101,6 @@ class VideoProcessor(
         // Process the box sets and store them in the tracker
         trajectoryTracker.processBoxes(filteredBallBoxes, filteredHoopBoxes)
         // Calculate the final trajectory
-        println(trajectoryTracker.getBallTrajectory())
         parameters = trajectoryTracker.fitTrajectory()
     }
 
@@ -134,8 +133,6 @@ class VideoProcessor(
 
 
         if (trajectory.isEmpty() || hoopPosition == null) {
-            println(trajectory)
-            println(hoopPosition)
             println("Not enough data for analysis. Trajectory or hoop position missing.")
             return
         }
@@ -165,15 +162,11 @@ class VideoProcessor(
 
         val startPosition = trajectoryTracker.getStartPosition()
         val angleResult = abs(physicsCalculator.getAnalysisOfPath(startPosition, parameters)).toString()
-        println(parameters)
-        println(optimalParams)
-        println(angleResult)
 
         // Retrieve the first frame
         val firstFrame = firstFrame ?: Bitmap.createBitmap(640, 640, Bitmap.Config.ARGB_8888)
 
         val ballLocations = trajectoryTracker.getBallTrajectory()
-        println(ballLocations)
         val overlayedBitmap = drawParabolas(firstFrame, parameters, optimalParams, ballLocations)
 
         // Pass data to ResultsActivity
