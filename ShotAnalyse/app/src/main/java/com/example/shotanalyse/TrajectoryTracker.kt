@@ -22,7 +22,6 @@ class TrajectoryTracker {
      */
     fun track(output: Array<Array<FloatArray>>) {
         if (output.isEmpty() || output[0].isEmpty()) {
-            println("Invalid or empty output from model.")
             return
         }
 
@@ -41,8 +40,6 @@ class TrajectoryTracker {
             hoopPosition = hoopCenter // Update latest hoop position
         }
 
-        println("Tracked Ball: ${ballTrajectory.lastOrNull() ?: "None"}")
-        println("Tracked Hoop: $hoopPosition")
     }
 
     /**
@@ -82,7 +79,6 @@ class TrajectoryTracker {
         // Select the highest confidence box for each set
         val filteredBallBoxSets = ballBoxSets.map { it.maxByOrNull { it.confidence } }
         val filteredHoopBoxSets = hoopBoxSets.map { it.maxByOrNull { it.confidence } }
-
         return listOf(filteredBallBoxSets, filteredHoopBoxSets)
     }
 
@@ -92,15 +88,9 @@ class TrajectoryTracker {
         ballPositions.clear()
         hoopPositions.clear()
         // Ensure there is at least one detection
-        if (true || ballBoxes.filterNotNull().size == 0 || hoopBoxes.filterNotNull().size == 0) {
-//            throw java.lang.IllegalArgumentException("No detections found.")
-//            ballTrajectory = mutableListOf(
-//                Pair(100f, 200f),
-//                Pair(200f, 100f),
-//                Pair(300f, 150f)
-//            )
-//            ballPositions.add(Pair(50f, 300f))
-//            hoopPosition = Pair(400f, 170f)
+        if (ballBoxes.filterNotNull().size == 0 || hoopBoxes.filterNotNull().size == 0) {
+            throw java.lang.IllegalArgumentException("No detections found.")
+            // Dummy values
             ballTrajectory = mutableListOf(
                 Pair(100f, 600f),
                 Pair(320f, 100f),
@@ -112,7 +102,6 @@ class TrajectoryTracker {
             hoopPositions.add(Pair(600f, 55f))
             return
         }
-
         // Extract hoop positions
         val incompleteHoopPositions = mutableListOf<Pair<Float, Float>?>()
         for (i in hoopBoxes.indices) {
@@ -127,17 +116,17 @@ class TrajectoryTracker {
         }
 
         // Find first non-null hoop position
-        var firstHoopPosition: Pair<Float, Float>? = null
-        for (i in hoopPositions.indices) {
+        var firstHoopIndex = 0
+        for (i in incompleteHoopPositions.indices) {
             if (incompleteHoopPositions[i] != null) {
-                firstHoopPosition = incompleteHoopPositions[i]
+                firstHoopIndex = i
                 break
             }
         }
         // Backfill missing positions for hoop
         for (i in incompleteHoopPositions.indices) {
             if (incompleteHoopPositions[i] == null) {
-                incompleteHoopPositions[i] = firstHoopPosition
+                incompleteHoopPositions[i] = incompleteHoopPositions[firstHoopIndex]
             } else {
                 break
             }
