@@ -13,7 +13,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.Interpreter
 import java.nio.ByteBuffer
+import kotlin.math.abs
 import kotlin.math.pow
+
+
+object BitmapHolder {
+    var bitmap: ByteArray? = null
+}
 
 class VideoProcessor(
     private val context: Context,
@@ -158,7 +164,7 @@ class VideoProcessor(
         val launchVelocity = physicsCalculator.getLaunchSpeed(parameters).toString()
 
         val startPosition = trajectoryTracker.getStartPosition()
-        val angleResult = physicsCalculator.getAnalysisOfPath(startPosition, parameters).toString()
+        val angleResult = abs(physicsCalculator.getAnalysisOfPath(startPosition, parameters)).toString()
         println(parameters)
         println(optimalParams)
         println(angleResult)
@@ -172,11 +178,12 @@ class VideoProcessor(
 
         // Pass data to ResultsActivity
         CoroutineScope(Dispatchers.Main).launch {
+
+            BitmapHolder.bitmap = BitmapUtils.bitmapToByteArray(overlayedBitmap)
             val intent = Intent(context, ResultsActivity::class.java).apply {
                 putExtra("RESULT_MESSAGE", if (hasScored) "Scored!" else "Missed")
                 putExtra("OPTIMAL_ANGLE", if (hasScored) "---" else optimalAngleResult)
                 putExtra("LAUNCH_ANGLE", angleResult)
-                putExtra("OVERLAYED_BITMAP", BitmapUtils.bitmapToByteArray(overlayedBitmap))
                 putExtra("LAUNCH_VELOCITY", "$launchVelocity m/s")
             }
             context.startActivity(intent)
